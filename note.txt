@@ -1,0 +1,5 @@
+//div[contains(@class,'text-neutral-700 dark:text-neutralFS-50 flex px-12 py-2 text-md cursor-pointer items-center gap-4') and contains(text(),'ออกจากระบบ')]
+
+robot --outputdir ./results --exclude skip ./testcase/"practice automation.robot" #ย้ายไฟล์ผลลัพธ์หรือ -d
+
+--exclude skip
