@@ -2,10 +2,12 @@
 Library    SeleniumLibrary
 Library    ScreenCapLibrary
 Library    OperatingSystem 
+Library    RequestsLibrary
 Resource        ../keywords/CommonKeywords.robot
 
 Suite Setup    Open Chrome Browser  ${URL} 
 Task Teardown    Go To Homepage    ${HOMEPAGE_URL} 
+Suite Teardown    Close All Browsers
 
 *** Variables ***
 ${BROWSER_WIDTH}    1366
@@ -15,7 +17,7 @@ ${HOMEPAGE_URL}    https://practice-automation.com/
 ${result_message}    //div[@id="contact-form-1065"]/div[@class='contact-form-submission']
 
 *** Test Cases ***
-Test JavaScript Delays
+Test_01 JavaScript Delays
     [Tags]    skip
     # Start Video Recording    alias=test1    name=result
     wait until element is ready then click element    //div[a[text()="JavaScript Delays"]] 
@@ -27,7 +29,7 @@ Test JavaScript Delays
     Capture Element Screenshot    //div[@itemprop="text"]    filename=${TEST_NAME}.png
     # Stop Video Recording
 
-Test Form Fields
+Test_02 Form Fields
     [Tags]    skip
     # Section 1: Test Text Input
     Wait until element is ready then click element    //div[a[text()="Form Fields"]]
@@ -72,7 +74,7 @@ Test Form Fields
     Handle Alert    ACCEPT
  
 
-Test Popups
+Test_03 Popups
     [Tags]    skip
     Wait until element is ready then click element    //div[a[text()="Popups"]]
     # Section 1: Test Alert Popups
@@ -105,7 +107,7 @@ Test Popups
     Element Should Be Visible    id=promptResult
     Element Text Should Be    id=promptResult    Nice to meet you, AOF!
     
-Test Sliders
+Test_04 Sliders
     [Tags]    skip
     Wait until element is ready then click element    //div[a[text()="Sliders"]]
     Element Attribute Value Should Be    id=slideMe    value    25
@@ -116,7 +118,7 @@ Test Sliders
     Element Text Should Be    id=value    39
     Capture Page Screenshot    filename=${TEST_NAME}.png 
 
-Test Calendars
+Test_05 Calendars
     [Tags]    skip
     Wait until element is ready then click element    //div[a[text()="Calendars"]]
     Wait until element is ready then click element    id=g1065-selectorenteradate
@@ -131,7 +133,7 @@ Test Calendars
     Element Should Contain    ${result_message}    2024-07-17
     Capture Page Screenshot    filename=${TEST_NAME}.png 
 
-Test Modals
+Test_06 Modals
     [Tags]    skip
 
     Wait until element is ready then click element    //div[a[text()="Modals"]]
@@ -154,7 +156,8 @@ Test Modals
     Textarea Value Should Be    id=contact-form-comment-g1051-message    Test text area.
     Click Element    //*[@id="contact-form-1051"]/form/p[1]/button    #Submit
 
-Test Iframes
+Test_07 Iframes
+    [Tags]    skip
     Wait until element is ready then click element    //div[a[text()="Iframes"]]
     Scroll Element Into View    id=iframe-1
     Select Frame    id=iframe-1
@@ -170,6 +173,48 @@ Test Iframes
     Scroll Element Into View    //div[@class="row justify-content-around pt-4 pb-5 px-5"][2]
     Capture Element Screenshot    //div[@class="row justify-content-around pt-4 pb-5 px-5"][2]    filename=${TEST_NAME}_3.png  
     Unselect Frame
+
+Test_08 Broken Links
+    [Tags]    skip
+    Wait until element is ready then click element    //div[a[text()="Broken Links"]]
+    # Create Session    mysession    https://practice-automation.com/broken-links
+    Click Element    //a[text()="broken link"]
+    ${response}=    GET    https://practice-automation.com/broken-links/missing-page.html    expected_status=Anything
+    Log    Status code: ${response}
+    Status Should Be    404    ${response}
+    Should Be Equal As Strings  NOT FOUND  ${response.reason}    ignore_case=True
+    # Should Be Equal As Numbers    ${response.status}    404
+    # Log    Status code: ${response.status}
+    Capture Page Screenshot    filename=${TEST_NAME}.png
+
+Test_09 Tables
+    [Tags]    skip
+    Wait until element is ready then click element    //div[a[text()="Tables"]]
+
+    # 1 : Simple Table
+    Table Column Should Contain    //figure[@class="wp-block-table"]/table    1    Item
+    Table Column Should Contain    //figure[@class="wp-block-table"]/table    2    Price
+    Table Cell Should Contain    //figure[@class="wp-block-table"]/table    3    1    Laptop
+    Table Row Should Contain    //figure[@class="wp-block-table"]/table    2    Oranges
+    Table Should Contain    //figure[@class="wp-block-table"]/table    $1.25
+
+
+    # 2 : Sortable Table
+    Scroll Element Into View    id=tablepress-1
+
+    ${columns}=    Get Element Count    //table[@id="tablepress-1"]/thead/tr/th
+    Should Be Equal As Numbers    ${columns}    3
+
+    ${rows}=    Get Element Count    //table[@id="tablepress-1"]/tbody/tr
+    Should Be Equal As Numbers    ${rows}    10
+    Capture Element Screenshot    id=tablepress-1    filename=${TEST_NAME}_1.png
+
+    Select From List By Value    name=tablepress-1_length    25
+
+    ${rows}=    Get Element Count    //table[@id="tablepress-1"]/tbody/tr
+    Should Be Equal As Numbers    ${rows}    25
+    Scroll Element Into View    //table[@id="tablepress-1"]/tbody/tr[@class="row-26 even"]
+    Capture Element Screenshot    id=tablepress-1    filename=${TEST_NAME}_2.png
 
 *** Keywords ***
 Set Slider Value
